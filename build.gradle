@@ -57,9 +57,9 @@ dependencies {
 
 	modImplementation("dev.kosmx.player-anim:player-animation-lib-fabric:${project.player_anim_version}")
 
-	/*modImplementation "maven.modrinth:MidnightControls:${project.midnightcontrols_version}"
+	modImplementation "maven.modrinth:MidnightControls:${project.midnightcontrols_version}"
 	modImplementation "maven.modrinth:obsidianui:${project.obsidianui_version}-fabric"
-	modImplementation "maven.modrinth:midnightlib:${project.midnightlib_version}-fabric"*/
+	modImplementation "maven.modrinth:midnightlib:${project.midnightlib_version}-fabric"
 
 	modImplementation "maven.modrinth:sodium:${project.sodium_version}-fabric"
 }

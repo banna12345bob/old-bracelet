@@ -42,12 +42,10 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
 
 	private Vec3d lastRollDirection;
 
-	public void playRollAnimation(String animationName, Vec3d direction) {
+	public void playAnimation(String animationName, Vec3d direction) {
 		try {
 			KeyframeAnimation animation = AnimationRegistry.animations.get(animationName);
 			var copy = animation.mutableCopy();
-//			lastRollDirection = direction;
-
 			var fadeIn = copy.beginTick;
 			base.replaceAnimationWithFade(
 					AbstractFadeModifier.standardFadeIn(fadeIn, Ease.INOUTSINE),
