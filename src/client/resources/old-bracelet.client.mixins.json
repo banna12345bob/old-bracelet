@@ -3,7 +3,7 @@
 	"package": "com.idiotss.isaac.mixin.client",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"ExampleClientMixin"
+		"AbstractClientPlayerEntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
