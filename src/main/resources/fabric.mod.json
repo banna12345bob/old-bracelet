@@ -39,6 +39,7 @@
 		"fabric-api": "*"
 	},
 	"suggests": {
-		"another-mod": "*"
+		"better-third-person": ">=1.9.0",
+		"player-animation-lib-fabric": ">=1.0.2-rc1"
 	}
 }

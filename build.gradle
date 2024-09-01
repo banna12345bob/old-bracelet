@@ -21,9 +21,9 @@ dependencies {
 }
 
 repositories {
-	maven { url "https://maven.terraformersmc.com/releases/" }
-	maven { url "https://api.modrinth.com/maven" }
-	maven { url 'https://maven.kosmx.dev/' }
+	maven { url "https://maven.terraformersmc.com/releases/" } // Mod menu
+	maven { url "https://api.modrinth.com/maven" } // Modrinth stuff
+	maven { url 'https://maven.kosmx.dev/' } // Player Animation Lib
 }
 
 loom {
@@ -57,9 +57,13 @@ dependencies {
 
 	modImplementation("dev.kosmx.player-anim:player-animation-lib-fabric:${project.player_anim_version}")
 
-	modImplementation "maven.modrinth:MidnightControls:${project.midnightcontrols_version}"
-	modImplementation "maven.modrinth:obsidianui:${project.obsidianui_version}-fabric"
-	modImplementation "maven.modrinth:midnightlib:${project.midnightlib_version}-fabric"
+	modImplementation "maven.modrinth:better-third-person:${project.BetterThirdPerson_version}-fabric,1.21"
+
+	if (project.controller == "true") {
+		modRuntimeOnly "maven.modrinth:MidnightControls:${project.midnightcontrols_version}-fabric"
+		modRuntimeOnly "maven.modrinth:obsidianui:${project.obsidianui_version}-fabric"
+		modRuntimeOnly "maven.modrinth:midnightlib:${project.midnightlib_version}-fabric"
+	}
 
 	modImplementation "maven.modrinth:sodium:${project.sodium_version}-fabric"
 }
