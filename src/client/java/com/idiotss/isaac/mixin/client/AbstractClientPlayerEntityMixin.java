@@ -34,7 +34,7 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
 	@Unique
 	private static OldBraceletCamera camera;
 	@Unique
-	private static SpeedModifier speedModifier;
+	private static SpeedModifier speedModifier = new SpeedModifier();
 
 	public AbstractClientPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
 		super(world, pos, yaw, gameProfile);

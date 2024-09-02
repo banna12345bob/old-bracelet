@@ -3,7 +3,8 @@
   "package": "com.idiotss.isaac.mixin.client",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "AbstractClientPlayerEntityMixin"
+    "AbstractClientPlayerEntityMixin",
+    "KeybindingAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
