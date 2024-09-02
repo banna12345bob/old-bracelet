@@ -24,6 +24,14 @@ repositories {
 	maven { url "https://maven.terraformersmc.com/releases/" } // Mod menu
 	maven { url "https://api.modrinth.com/maven" } // Modrinth stuff
 	maven { url 'https://maven.kosmx.dev/' } // Player Animation Lib
+	// GeckoLib
+	maven {
+		name = 'GeckoLib'
+		url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+		content {
+			includeGroup("software.bernie.geckolib")
+		}
+	}
 }
 
 loom {
@@ -51,21 +59,32 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+	// https://modrinth.com/mod/modmenu
 	modRuntimeOnly ("com.terraformersmc:modmenu:${project.modmenu_version}") {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
 
-	modImplementation("dev.kosmx.player-anim:player-animation-lib-fabric:${project.player_anim_version}")
+	// https://modrinth.com/mod/geckolib
+	modImplementation "software.bernie.geckolib:geckolib-fabric-${project.minecraft_version}:${project.geckolib_version}"
 
+	// https://modrinth.com/mod/playeranimator - Should be included default
+	modImplementation include( "dev.kosmx.player-anim:player-animation-lib-fabric:${project.player_anim_version}")
+
+	// https://modrinth.com/mod/better-third-person
 	modImplementation "maven.modrinth:better-third-person:${project.BetterThirdPerson_version}-fabric,1.21"
 
+	// https://modrinth.com/mod/midnightcontrols
 	if (project.controller == "true") {
 		modRuntimeOnly "maven.modrinth:MidnightControls:${project.midnightcontrols_version}-fabric"
 		modRuntimeOnly "maven.modrinth:obsidianui:${project.obsidianui_version}-fabric"
 		modRuntimeOnly "maven.modrinth:midnightlib:${project.midnightlib_version}-fabric"
 	}
 
-	modImplementation "maven.modrinth:sodium:${project.sodium_version}-fabric"
+	// https://modrinth.com/mod/sodium
+	modRuntimeOnly "maven.modrinth:sodium:${project.sodium_version}-fabric"
+
+	// https://modrinth.com/mod/dev-tools-unlocker
+	modRuntimeOnly "maven.modrinth:dev-tools-unlocker:${project.devTools_Version}"
 }
 
 processResources {
