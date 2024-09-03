@@ -1,13 +1,10 @@
 package com.idiotss.isaac.mixin.client;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.option.KeyBind;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.gen.Accessor;
-import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(KeyBinding.class)
+@Mixin(KeyBind.class)
 public interface KeybindingAccessor {
 
     @Accessor("timesPressed")

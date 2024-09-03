@@ -6,6 +6,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.Vec3d;
 
 public class KeyInputHandler {
+//    private static KeyBind rollKeybind;
+
     private static final float rollMultiplier = 2.5F;
     private static final float backsetpMultiplier = 0.5F;
     private static final float rollCooldown = 7.5F;
@@ -38,11 +40,23 @@ public class KeyInputHandler {
                     }
                 }
             }
+            if(client.options.sprintKey.isPressed() && rollUsed && (rollCooldown < client.world.getTime() - lastTime)) {
+                client.player.setSprinting(true);
+            } else if (client.player != null) {
+                client.player.setSprinting(false);
+
+            }
         });
 
     }
 
     public static void register() {
+//        rollKeybind = KeyBindingHelper.registerKeyBinding(new KeyBind(
+//                "key.oldbracelet.rollkey", // The translation key of the keybinding's name
+//                InputUtil.Type.KEYSYM, // The type of the keybinding, KEYSYM for keyboard, MOUSE for mouse.
+//                GLFW.GLFW_KEY_LEFT_CONTROL, // The keycode of the key
+//                KeyBind.MOVEMENT_CATEGORY // The translation key of the keybinding's category.
+//        ));
         registerKeyInputs();
     }
 

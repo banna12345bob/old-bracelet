@@ -18,7 +18,7 @@ public class AnimationRegistry {
             var identifier = entry.getKey();
             var resource = entry.getValue();
             try {
-                List<KeyframeAnimation> readAnimations = AnimationSerializing.deserializeAnimation(resource.getInputStream());
+                List<KeyframeAnimation> readAnimations = AnimationSerializing.deserializeAnimation(resource.open());
                 KeyframeAnimation animation = readAnimations.get(0);
 
                 var id = identifier
