@@ -11,8 +11,9 @@ import dev.kosmx.playerAnim.api.layered.modifier.SpeedModifier;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.core.util.Ease;
 import dev.kosmx.playerAnim.impl.IAnimatedPlayer;
-import io.socol.betterthirdperson.BetterThirdPerson;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.option.Perspective;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -43,16 +44,13 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void postInit(ClientWorld world, GameProfile profile, CallbackInfo ci) {
 		var stack = ((IAnimatedPlayer) this).getAnimationStack();
-//		base.addModifier(createAdjustmentModifier(), 0);
 		stack.addAnimLayer(1000, base);
 	}
 
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void tick(CallbackInfo ci){
-		if (BetterThirdPerson.getCameraManager().hasCustomCamera()) {
-			camera = new OldBraceletCamera(BetterThirdPerson.getCameraManager().getCustomCamera());
-//			camera.lookAt(this.getPos(), new Vec3d(0, -60, 0));
-		}
+//		Forces the custom camera
+		MinecraftClient.getInstance().options.setPerspective(Perspective.THIRD_PERSON_BACK);
 	}
 
 	public void playAnimation(String animationName, Vec3d direction, float speed) {
