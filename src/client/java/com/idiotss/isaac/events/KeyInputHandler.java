@@ -9,7 +9,6 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBind;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.glfw.GLFW;
@@ -34,7 +33,7 @@ public class KeyInputHandler {
 //     TODO: Figure our min & max distances
 //    If player has no entities within the minDistance it should default reset the camera forwards (relative to the player)
     private static final float minDistance = 10F;
-    private static final float maxDistance = 20F;
+    private static final float maxDistance = 15F;
 
     public static void registerKeyInputs() {
         // Sprint & roll code
@@ -86,20 +85,20 @@ public class KeyInputHandler {
                     assert client.world != null;
                     targetKeyUsed = true;
                     for (Entity entity: client.world.getEntities()) {
-                        if (entity != MinecraftClient.getInstance().player && entity instanceof MobEntity) {
-                            if (closestEntity == null) {
+                        if (entity != client.player && entity instanceof MobEntity) {
+                            if (entity.getPos().distanceTo(client.player.getPos()) < minDistance && closestEntity == null) {
                                 closestEntity = entity;
                             }
-                            if (entity.getPos().distanceTo(MinecraftClient.getInstance().player.getPos()) <= minDistance && entity.getPos().distanceTo(MinecraftClient.getInstance().player.getPos()) < closestEntity.getPos().distanceTo(MinecraftClient.getInstance().player.getPos())) {
+                            if (entity.getPos().distanceTo(client.player.getPos()) < minDistance && entity.getPos().distanceTo(client.player.getPos()) < closestEntity.getPos().distanceTo(client.player.getPos())) {
                                 closestEntity = entity;
                             }
                         }
                     }
                 }
-                if (closestEntity != null) {
+                if (closestEntity != null && client.player != null) {
                     camera = new OldBraceletCamera(BetterThirdPerson.getCameraManager().getCustomCamera());
-                    camera.lookAt(MinecraftClient.getInstance().player.getPos(), closestEntity.getPos());
-                    if (closestEntity.getPos().distanceTo(MinecraftClient.getInstance().player.getPos()) > maxDistance){
+                    camera.lookAt(client.player.getPos(), closestEntity.getPos());
+                    if (closestEntity.getPos().distanceTo(client.player.getPos()) > maxDistance){
                         closestEntity = null;
                     }
                 }
@@ -109,7 +108,7 @@ public class KeyInputHandler {
 
     public static void register() {
         targetKeybind = KeyBindingHelper.registerKeyBinding(new KeyBind(
-                "key.oldbracelet.rollkey", // The translation key of the keybinding's name
+                "key.oldbracelet.targetkey", // The translation key of the keybinding's name
                 InputUtil.Type.KEYSYM, // The type of the keybinding, KEYSYM for keyboard, MOUSE for mouse.
                 GLFW.GLFW_KEY_R, // The keycode of the key
                 KeyBind.MOVEMENT_CATEGORY // The translation key of the keybinding's category.

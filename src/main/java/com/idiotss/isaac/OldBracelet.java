@@ -20,12 +20,23 @@ public class OldBracelet implements ModInitializer {
 	public static final Holder<EntityAttribute> TANGIBLE = registerEntityAttribute("tangibility", new ClampedEntityAttribute(
 			"attribute.name." + MOD_ID + '.' + "tangibility", 1, 0, 1).setTracked(true));
 
+	public static final Holder<EntityAttribute> INVINCIBILITY = registerEntityAttribute("invincibility", new ClampedEntityAttribute(
+			"attribute.name." + MOD_ID + '.' + "invincibility", 0, 0, 1).setTracked(true));
+
 	private static Holder<EntityAttribute> registerEntityAttribute(String id, EntityAttribute attribute) {
 		return Registry.registerHolder(Registries.ENTITY_ATTRIBUTE, Identifier.of(MOD_ID, id), attribute);
 	}
 
 	public static boolean getTangibility(final LivingEntity entity) {
 		return entity.getAttributeInstance(TANGIBLE) != null && (entity.getAttributeInstance(TANGIBLE).getValue() > 0);
+	}
+
+	public static boolean getInvincibility(final LivingEntity entity) {
+		return entity.getAttributeInstance(INVINCIBILITY) != null && (entity.getAttributeInstance(INVINCIBILITY).getValue() > 0);
+	}
+
+	public static void setInvincibility(final LivingEntity entity, boolean value) {
+		entity.getAttributeInstance(INVINCIBILITY).setBaseValue(value ? 1 : 0);
 	}
 
 	@Override
