@@ -1,5 +1,6 @@
 package com.idiotss.isaac.mixin.client;
 
+import com.idiotss.isaac.OldBracelet;
 import com.idiotss.isaac.animation.AnimatablePlayer;
 import com.idiotss.isaac.animation.AnimationRegistry;
 import com.mojang.authlib.GameProfile;
@@ -38,6 +39,12 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
 	@Unique
 	private static SpeedModifier speedModifier = new SpeedModifier();
 
+	@Unique
+	private static KeyframeAnimation.AnimationBuilder copy;
+
+	@Unique
+	private static int currentAnimationTick = 0;
+
 	public AbstractClientPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
 		super(world, pos, yaw, gameProfile);
 	}
@@ -54,6 +61,13 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
 		if (Objects.requireNonNull(this.getPlayerListEntry()).getGameMode() == GameMode.ADVENTURE) {
 			MinecraftClient.getInstance().options.setPerspective(Perspective.THIRD_PERSON_BACK);
 		}
+
+		if (base.isActive()) {
+			OldBracelet.setInvincibility(this, copy.getPart("invincibility").x.findAtTick(currentAnimationTick) == 0);
+			currentAnimationTick++;
+		} else {
+			currentAnimationTick = 0;
+		}
 	}
 
 	public void playAnimation(String animationName, Vec3d direction, float speed) {
@@ -61,7 +75,7 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
 		speedModifier.speed = speed;
 		try {
 			KeyframeAnimation animation = AnimationRegistry.animations.get(animationName);
-			var copy = animation.mutableCopy();
+			copy = animation.mutableCopy();
 			var fadeIn = copy.beginTick;
 			base.replaceAnimationWithFade(
 					AbstractFadeModifier.standardFadeIn(fadeIn, Ease.INOUTSINE),

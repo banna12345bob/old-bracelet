@@ -38,29 +38,34 @@ public class KeyInputHandler {
     public static void registerKeyInputs() {
         // Sprint & roll code
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
+            if (client.player != null) {
+                client.player.setJumping(false);
+            }
             if(!client.options.sprintKey.isPressed()){
                 rollUsed = false;
             }
-            if(client.options.sprintKey.isPressed() && !rollUsed && client.player.isOnGround()) {
+            if(client.options.sprintKey.isPressed() && !rollUsed) {
                 rollUsed = true;
                 assert client.world != null;
                 assert client.player != null;
-                if (!isClientMoving(client)) {
-                    if (backstepCooldown < client.world.getTime() - lastTime) {
-                        newVelocity = new Vec3d(-client.player.getRotationVector().x * backsetpMultiplier, client.player.getVelocity().y, -client.player.getRotationVector().z * backsetpMultiplier);
-                        lastTime = client.world.getTime();
-                        client.player.setVelocity(newVelocity);
-                    }
-                } else {
-                    if (rollCooldown < client.world.getTime() - lastTime) {
-                        newVelocity = new Vec3d(client.player.getRotationVector().x * rollMultiplier, client.player.getVelocity().y, client.player.getRotationVector().z * rollMultiplier);
-                        ((AnimatablePlayer) client.player).playAnimation("old-bracelet:player/run.animation", client.player.getVelocity(), 1.0F);
+                if (client.player.isOnGround()) {
+                    if (!isClientMoving(client)) {
+                        if (backstepCooldown < client.world.getTime() - lastTime) {
+                            newVelocity = new Vec3d(-client.player.getRotationVector().x * backsetpMultiplier, client.player.getVelocity().y + 0.5f, -client.player.getRotationVector().z * backsetpMultiplier);
+                            lastTime = client.world.getTime();
+                            client.player.setVelocity(newVelocity);
+                        }
+                    } else {
+                        if (rollCooldown < client.world.getTime() - lastTime) {
+                            newVelocity = new Vec3d(client.player.getRotationVector().x * rollMultiplier, client.player.getVelocity().y, client.player.getRotationVector().z * rollMultiplier);
+                            ((AnimatablePlayer) client.player).playAnimation("old-bracelet:player/run.animation", client.player.getVelocity(), 1.0F);
 
 //                        TODO: Send Roll packet to server
 //                        client.world.sendPacket();
 
-                        lastTime = client.world.getTime();
-                        client.player.setVelocity(newVelocity);
+                            lastTime = client.world.getTime();
+                            client.player.setVelocity(newVelocity);
+                        }
                     }
                 }
             }
