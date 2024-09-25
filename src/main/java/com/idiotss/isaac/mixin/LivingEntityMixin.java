@@ -5,11 +5,13 @@
 
 package com.idiotss.isaac.mixin;
 
+import com.idiotss.isaac.OldBraceletAttributes;
 import com.idiotss.isaac.OldBracelet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -26,12 +28,25 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo ci) {
-        this.setInvulnerable(OldBracelet.getInvincibility((LivingEntity) ((Object) this)));
+        // Invincibility switches back and forth due to desync with the server
+        boolean inv = OldBraceletAttributes.getInvincibility(((LivingEntity) ((Object) this)));
+        if (OldBraceletAttributes.getInvincibility(((LivingEntity) ((Object) this))) == true) {
+            OldBracelet.LOGGER.info("TRUE");
+        }
+        OldBracelet.LOGGER.info(this.uuid.toString() + ": " + inv);
+    }
+
+    @Inject(method = "damage", at = @At("HEAD"), cancellable = true)
+    private void damage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+
+        if (OldBraceletAttributes.getInvincibility(((LivingEntity) ((Object) this)))) {
+            cir.cancel();
+        }
     }
 
     @Inject(method = "pushAway", at = @At("HEAD"), cancellable = true)
     protected void pushAway(Entity entity, CallbackInfo ci) {
-        if (entity instanceof LivingEntity && (OldBracelet.getTangibility(((LivingEntity) ((Object) this))) || OldBracelet.getTangibility((LivingEntity) entity))) {
+        if (entity instanceof LivingEntity && (OldBraceletAttributes.getTangibility(((LivingEntity) ((Object) this))) || OldBraceletAttributes.getTangibility((LivingEntity) entity))) {
             ci.cancel();
         }
     }
@@ -46,12 +61,12 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Unique
     public boolean isCollidable() {
-        return OldBracelet.getTangibility(((LivingEntity) ((Object) this)));
+        return OldBraceletAttributes.getTangibility(((LivingEntity) ((Object) this)));
     }
 
     @Inject(method = "createLivingAttributes()Lnet/minecraft/entity/attribute/DefaultAttributeContainer$Builder;", at = @At("RETURN"))
     private static void addAttributes(final CallbackInfoReturnable<DefaultAttributeContainer.Builder> info) {
-        info.getReturnValue().add(OldBracelet.TANGIBLE);
-        info.getReturnValue().add(OldBracelet.INVINCIBILITY);
+        info.getReturnValue().add(OldBraceletAttributes.TANGIBLE);
+        info.getReturnValue().add(OldBraceletAttributes.INVINCIBILITY);
     }
 }

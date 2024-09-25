@@ -1,6 +1,6 @@
 package com.idiotss.isaac.mixin.client;
 
-import com.idiotss.isaac.OldBracelet;
+import com.idiotss.isaac.OldBraceletAttributes;
 import com.idiotss.isaac.animation.AnimatablePlayer;
 import com.idiotss.isaac.animation.AnimationRegistry;
 import com.mojang.authlib.GameProfile;
@@ -63,7 +63,9 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
 		}
 
 		if (base.isActive()) {
-			OldBracelet.setInvincibility(this, copy.getPart("invincibility").x.findAtTick(currentAnimationTick) == 0);
+			if (OldBraceletAttributes.getInvincibility(this) != ((copy.getPart("invincibility").x.findAtTick(currentAnimationTick - 1) % 2) == 0)){
+				OldBraceletAttributes.setInvincibility(this, (copy.getPart("invincibility").x.findAtTick(currentAnimationTick) % 2) == 0);
+			}
 			currentAnimationTick++;
 		} else {
 			currentAnimationTick = 0;
