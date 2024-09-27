@@ -1,11 +1,13 @@
 {
-	"required": true,
-	"package": "com.idiotss.isaac.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"LivingEntityMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
+  "required": true,
+  "package": "com.idiotss.isaac.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "LivingEntityMixin",
+    "PlayerEntityMixin",
+    "ServerPlayNetworkHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
 	}
 }

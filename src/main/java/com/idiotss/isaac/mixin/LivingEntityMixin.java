@@ -26,15 +26,15 @@ public abstract class LivingEntityMixin extends Entity {
         super(entityType, world);
     }
 
-    @Inject(method = "tick", at = @At("HEAD"))
-    private void tick(CallbackInfo ci) {
-        // Invincibility switches back and forth due to desync with the server
-        boolean inv = OldBraceletAttributes.getInvincibility(((LivingEntity) ((Object) this)));
-        if (OldBraceletAttributes.getInvincibility(((LivingEntity) ((Object) this))) == true) {
-            OldBracelet.LOGGER.info("TRUE");
-        }
-        OldBracelet.LOGGER.info(this.uuid.toString() + ": " + inv);
-    }
+//    @Inject(method = "tick", at = @At("HEAD"))
+//    private void tick(CallbackInfo ci) {
+//        // Invincibility switches back and forth due to desync with the server
+//        boolean inv = OldBraceletAttributes.getInvincibility(((LivingEntity) ((Object) this)));
+//        if (OldBraceletAttributes.getInvincibility(((LivingEntity) ((Object) this))) == true) {
+//            OldBracelet.LOGGER.info("TRUE");
+//        }
+//        OldBracelet.LOGGER.info(this.uuid.toString() + ": " + inv);
+//    }
 
     @Inject(method = "damage", at = @At("HEAD"), cancellable = true)
     private void damage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
