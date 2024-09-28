@@ -30,5 +30,6 @@ public class OldBraceletBlocks {
 
     public static void register() {
         OldBracelet.LOGGER.info("Registering blocks for " + OldBracelet.MOD_ID);
+        Registry.register(Registries.BLOCK_TYPE, Identifier.of(OldBracelet.MOD_ID, "trigger_block"), TriggerBlock.CODEC);
     }
 }

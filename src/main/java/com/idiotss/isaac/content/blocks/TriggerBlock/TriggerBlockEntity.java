@@ -2,26 +2,18 @@ package com.idiotss.isaac.content.blocks.TriggerBlock;
 
 import com.idiotss.isaac.OldBraceletScreenHandler;
 import com.idiotss.isaac.content.blocks.OldBraceletBlockEntities;
-import com.idiotss.isaac.content.blocks.OldBraceletBlocks;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.enums.StructureBlockMode;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.HolderLookup;
 import net.minecraft.util.*;
-import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3i;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 public class TriggerBlockEntity extends BlockEntity {
     @Nullable
@@ -33,7 +25,10 @@ public class TriggerBlockEntity extends BlockEntity {
 
     public TriggerBlockEntity(BlockPos pos, BlockState state) {
         super(OldBraceletBlockEntities.TRIGGER_BLOCK_ENTITY, pos, state);
-//        this.mode = state.get(StructureBlock.MODE);
+    }
+
+    public boolean isPlayerInside(PlayerEntity player) {
+        return true;
     }
 
     @Override

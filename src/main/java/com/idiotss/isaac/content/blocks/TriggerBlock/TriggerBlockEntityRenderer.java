@@ -68,14 +68,14 @@ public class TriggerBlockEntityRenderer implements BlockEntityRenderer<TriggerBl
                 float s = 0.5F;
                 if (triggerBlockEntity.shouldShowBoundingBox()) {
                     VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayer.getLines());
-                    WorldRenderer.drawBox(matrices, vertexConsumer, m, g, n, o, h, p, 0.9F, 0.9F, 0.9F, 1.0F, 0.5F, 0.5F, 0.5F);
+                    if (triggerBlockEntity.isPlayerInside(MinecraftClient.getInstance().player)){
+                        WorldRenderer.drawBox(matrices, vertexConsumer, m, g, n, o, h, p, 0F, 0.9F, 0F, 1.0F, 0.0f, 0.0f, 0.0f);
+                    } else {
+                        WorldRenderer.drawBox(matrices, vertexConsumer, m, g, n, o, h, p, 0.9F, 0.9F, 0.9F, 1.0F, 0.5F, 0.5F, 0.5F);
+                    }
                 }
             }
         }
-    }
-
-    public boolean rendersOutsideBoundingBox(StructureBlockBlockEntity structureBlockBlockEntity) {
-        return true;
     }
 
     @Override
