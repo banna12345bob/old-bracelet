@@ -1,5 +1,6 @@
 package com.idiotss.isaac.events;
 
+import com.idiotss.isaac.OldBracelet;
 import com.idiotss.isaac.animation.AnimatablePlayer;
 import com.idiotss.isaac.camera.OldBraceletCamera;
 import com.mojang.blaze3d.platform.InputUtil;
@@ -58,7 +59,7 @@ public class KeyInputHandler {
                     } else {
                         if (rollCooldown < client.world.getTime() - lastTime) {
                             newVelocity = new Vec3d(client.player.getRotationVector().x * rollMultiplier, client.player.getVelocity().y, client.player.getRotationVector().z * rollMultiplier);
-                            ((AnimatablePlayer) client.player).playAnimation("old-bracelet:player/run.animation", client.player.getVelocity(), 1.0F);
+                            ((AnimatablePlayer) client.player).playAnimation("oldbracelet:player/run.animation", client.player.getVelocity(), 1.0F);
 
 //                        TODO: Send Roll packet to server
 //                        client.world.sendPacket();
@@ -113,7 +114,7 @@ public class KeyInputHandler {
 
     public static void register() {
         targetKeybind = KeyBindingHelper.registerKeyBinding(new KeyBind(
-                "key.oldbracelet.targetkey", // The translation key of the keybinding's name
+                "key."+ OldBracelet.MOD_ID +".targetkey", // The translation key of the keybinding's name
                 InputUtil.Type.KEYSYM, // The type of the keybinding, KEYSYM for keyboard, MOUSE for mouse.
                 GLFW.GLFW_KEY_R, // The keycode of the key
                 KeyBind.MOVEMENT_CATEGORY // The translation key of the keybinding's category.

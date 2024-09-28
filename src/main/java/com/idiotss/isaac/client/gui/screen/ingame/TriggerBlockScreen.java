@@ -6,6 +6,7 @@ import com.idiotss.isaac.network.packet.c2s.play.TriggerBlockUpdateC2SPacket;
 import commonnetwork.api.Dispatcher;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.enums.StructureBlockMode;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
@@ -29,11 +30,6 @@ public class TriggerBlockScreen extends Screen {
     private static final Text STRUCTURE_NAME = Text.translatable("structure_block.structure_name");
     private static final Text POSITION = Text.translatable("structure_block.position");
     private static final Text SIZE = Text.translatable("structure_block.size");
-    private static final Text INTEGRITY = Text.translatable("structure_block.integrity");
-    private static final Text CUSTOM_DATA = Text.translatable("structure_block.custom_data");
-    private static final Text INCLUDE_ENTITIES = Text.translatable("structure_block.include_entities");
-    private static final Text DETECT_SIZE = Text.translatable("structure_block.detect_size");
-    private static final Text SHOW_AIR = Text.translatable("structure_block.show_air");
     private static final Text SHOW_BOUNDING_BOX = Text.translatable("structure_block.show_boundingbox");
     private BlockRotation rotation = BlockRotation.NONE;
     private boolean showBoundingBox;
@@ -52,31 +48,34 @@ public class TriggerBlockScreen extends Screen {
     private CyclingButtonWidget<Boolean> buttonShowBoundingBox;
 
     private final TriggerBlockEntity triggerBlock;
-    private final DecimalFormat decimalFormat = new DecimalFormat("0.0###");
-
-    private static final Identifier TEXTURE = Identifier.ofDefault("textures/gui/container/dispenser.png");
 
     public TriggerBlockScreen(TriggerBlockEntity triggerBlock) {
         super(Text.translatable(OldBraceletBlocks.TRIGGER_BLOCK.getTranslationKey()));
         this.triggerBlock = triggerBlock;
-        this.decimalFormat.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         super.render(graphics, mouseX, mouseY, delta);
         graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, 10, 16777215);
+        graphics.drawShadowedText(this.textRenderer, STRUCTURE_NAME, this.width / 2 - 153, 30, 10526880);
+        this.inputName.render(graphics, mouseX, mouseY, delta);
+
         graphics.drawShadowedText(this.textRenderer, POSITION, this.width / 2 - 153, 70, 10526880);
         this.inputPosX.render(graphics, mouseX, mouseY, delta);
         this.inputPosY.render(graphics, mouseX, mouseY, delta);
         this.inputPosZ.render(graphics, mouseX, mouseY, delta);
+
+        graphics.drawShadowedText(this.textRenderer, SIZE, this.width / 2 - 153, 110, 10526880);
+        this.inputSizeX.render(graphics, mouseX, mouseY, delta);
+        this.inputSizeY.render(graphics, mouseX, mouseY, delta);
+        this.inputSizeZ.render(graphics, mouseX, mouseY, delta);
+
+        graphics.drawShadowedText(this.textRenderer, SHOW_BOUNDING_BOX, this.width / 2 + 154 - this.textRenderer.getWidth(SHOW_BOUNDING_BOX), 70, 10526880);
     }
 
     private void cancel() {
-//        this.triggerBlock.setMirror(this.mirror);
-//        this.triggerBlock.setRotation(this.rotation);
-//        this.triggerBlock.setIgnoreEntities(this.ignoreEntities);
-//        this.triggerBlock.setShowAir(this.showAir);
+        this.triggerBlock.setRotation(this.rotation);
         this.triggerBlock.setShowBoundingBox(this.showBoundingBox);
         this.client.setScreen(null);
     }
@@ -191,13 +190,15 @@ public class TriggerBlockScreen extends Screen {
         this.inputSizeZ = new TextFieldWidget(this.textRenderer, this.width / 2 + 8, 120, 80, 20, Text.translatable("structure_block.size.z"));
         this.inputSizeZ.setMaxLength(15);
         this.inputSizeZ.setText(Integer.toString(vec3i.getZ()));
+        this.addSelectableElement(this.inputSizeZ);
         this.updateRotationButton();
+        this.updateWidgets();
     }
 
-//    @Override
-//    protected void setInitialFocus() {
-//        this.setInitialFocus(this.inputName);
-//    }
+    @Override
+    protected void setInitialFocus() {
+        this.setInitialFocus(this.inputName);
+    }
 
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
@@ -244,65 +245,19 @@ public class TriggerBlockScreen extends Screen {
         }
     }
 
-//    private void updateWidgets() {
-//        this.inputName.setVisible(false);
-//        this.inputPosX.setVisible(false);
-//        this.inputPosY.setVisible(false);
-//        this.inputPosZ.setVisible(false);
-//        this.inputSizeX.setVisible(false);
-//        this.inputSizeY.setVisible(false);
-//        this.inputSizeZ.setVisible(false);
-//        this.inputIntegrity.setVisible(false);
-//        this.inputSeed.setVisible(false);
-//        this.inputMetadata.setVisible(false);
-//        this.buttonSave.visible = false;
-//        this.buttonLoad.visible = false;
-//        this.buttonDetect.visible = false;
-//        this.buttonEntities.visible = false;
-//        this.buttonMirror.visible = false;
-//        this.buttonRotate0.visible = false;
-//        this.buttonRotate90.visible = false;
-//        this.buttonRotate180.visible = false;
-//        this.buttonRotate270.visible = false;
-//        this.buttonShowAir.visible = false;
-//        this.buttonShowBoundingBox.visible = false;
-//        switch (mode) {
-//            case SAVE:
-//                this.inputName.setVisible(true);
-//                this.inputPosX.setVisible(true);
-//                this.inputPosY.setVisible(true);
-//                this.inputPosZ.setVisible(true);
-//                this.inputSizeX.setVisible(true);
-//                this.inputSizeY.setVisible(true);
-//                this.inputSizeZ.setVisible(true);
-//                this.buttonSave.visible = true;
-//                this.buttonDetect.visible = true;
-//                this.buttonEntities.visible = true;
-//                this.buttonShowAir.visible = true;
-//                break;
-//            case LOAD:
-//                this.inputName.setVisible(true);
-//                this.inputPosX.setVisible(true);
-//                this.inputPosY.setVisible(true);
-//                this.inputPosZ.setVisible(true);
-//                this.inputIntegrity.setVisible(true);
-//                this.inputSeed.setVisible(true);
-//                this.buttonLoad.visible = true;
-//                this.buttonEntities.visible = true;
-//                this.buttonMirror.visible = true;
-//                this.buttonRotate0.visible = true;
-//                this.buttonRotate90.visible = true;
-//                this.buttonRotate180.visible = true;
-//                this.buttonRotate270.visible = true;
-//                this.buttonShowBoundingBox.visible = true;
-//                this.updateRotationButton();
-//                break;
-//            case CORNER:
-//                this.inputName.setVisible(true);
-//                break;
-//            case DATA:
-//                this.inputMetadata.setVisible(true);
-//        }
-//    }
+    private void updateWidgets() {
+        this.inputName.setVisible(true);
+        this.inputPosX.setVisible(true);
+        this.inputPosY.setVisible(true);
+        this.inputPosZ.setVisible(true);
+        this.inputSizeX.setVisible(true);
+        this.inputSizeY.setVisible(true);
+        this.inputSizeZ.setVisible(true);
+        this.buttonRotate0.visible = true;
+        this.buttonRotate90.visible = true;
+        this.buttonRotate180.visible = true;
+        this.buttonRotate270.visible = true;
+        this.buttonShowBoundingBox.visible = true;
+    }
 
 }

@@ -2,8 +2,11 @@ package com.idiotss.isaac.content.blocks.TriggerBlock;
 
 import com.idiotss.isaac.OldBraceletScreenHandler;
 import com.idiotss.isaac.content.blocks.OldBraceletBlockEntities;
+import com.idiotss.isaac.content.blocks.OldBraceletBlocks;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.enums.StructureBlockMode;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
@@ -16,12 +19,13 @@ import net.minecraft.util.math.Vec3i;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 public class TriggerBlockEntity extends BlockEntity {
     @Nullable
-    private Identifier triggerName;
+    private String triggerName;
     private BlockPos offset = new BlockPos(0, 1, 0);
     private Vec3i size = Vec3i.ZERO;
     private BlockRotation rotation = BlockRotation.NONE;
@@ -97,12 +101,8 @@ public class TriggerBlockEntity extends BlockEntity {
         return this.triggerName != null;
     }
 
-    public void setTriggerName(@Nullable String name) {
-        this.setStructureName(ChatUtil.isEmpty(name) ? null : Identifier.tryParse(name));
-    }
-
-    public void setStructureName(@Nullable Identifier structureName) {
-        this.triggerName = structureName;
+    public void setTriggerName(@Nullable String triggerName) {
+        this.triggerName = triggerName;
     }
 
     public BlockPos getOffset() {
@@ -127,23 +127,6 @@ public class TriggerBlockEntity extends BlockEntity {
 
     public void setRotation(BlockRotation rotation) {
         this.rotation = rotation;
-    }
-
-    private static Optional<BlockBox> getTriggerBox(BlockPos pos, Stream<BlockPos> corners) {
-        Iterator<BlockPos> iterator = corners.iterator();
-        if (!iterator.hasNext()) {
-            return Optional.empty();
-        } else {
-            BlockPos blockPos = (BlockPos)iterator.next();
-            BlockBox blockBox = new BlockBox(blockPos);
-            if (iterator.hasNext()) {
-                iterator.forEachRemaining(blockBox::encompass);
-            } else {
-                blockBox.encompass(pos);
-            }
-
-            return Optional.of(blockBox);
-        }
     }
 
     public boolean shouldShowBoundingBox() {

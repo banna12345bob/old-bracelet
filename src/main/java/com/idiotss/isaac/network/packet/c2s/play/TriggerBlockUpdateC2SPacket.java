@@ -10,6 +10,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketEncoder;
 import net.minecraft.network.packet.payload.CustomPayload;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
@@ -97,30 +98,20 @@ public class TriggerBlockUpdateC2SPacket {
         return new CustomPayload.Id<>(CHANNEL);
     }
 
-//    public void apply(ServerPlayPacketListener serverPlayPacketListener) {
-//        OldBracelet.LOGGER.info("HERE");
-//        OldBracelet.LOGGER.info(serverPlayPacketListener.getPhase().name());
-//        ((OldBraceletServerPlayPacketListener)serverPlayPacketListener).onTriggerBlockUpdate(this, serverPlayPacketListener);
-//    }
-
     public static void handle(PacketContext<TriggerBlockUpdateC2SPacket> ctx) {
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-//        NetworkThreadUtils.forceMainThread(ctx, ctx.message(), ctx.sender().getServerWorld());
+        ServerPlayerEntity player = ctx.sender();
         if (player.isCreativeLevelTwoOp()) {
             BlockPos blockPos = ctx.message().getPos();
             BlockState blockState = player.getWorld().getBlockState(blockPos);
-            BlockEntity blockEntity = player.getWorld().getBlockEntity(blockPos);
-            if (blockEntity instanceof TriggerBlockEntity) {
-                TriggerBlockEntity triggerBlockEntity = (TriggerBlockEntity)blockEntity;
+            if (player.getWorld().getBlockEntity(blockPos) instanceof TriggerBlockEntity triggerBlockEntity) {
                 triggerBlockEntity.setTriggerName(getTriggerName());
                 triggerBlockEntity.setOffset(getOffset());
                 triggerBlockEntity.setSize(getSize());
                 triggerBlockEntity.setRotation(getRotation());
                 triggerBlockEntity.setShowBoundingBox(shouldShowBoundingBox());
 
-                // Doesn't update NBT data
-                triggerBlockEntity.notifyAll();
-                ctx.sender().getWorld().updateListeners(blockPos, blockState, blockState, Block.NOTIFY_ALL);
+                triggerBlockEntity.markDirty();
+                ctx.sender().getServerWorld().updateListeners(blockPos, blockState, blockState, Block.NOTIFY_ALL);
             }
         }
     }

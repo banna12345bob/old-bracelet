@@ -12,7 +12,7 @@ import net.minecraft.util.Identifier;
 
 public class OldBraceletBlocks {
 
-    public static Block TRIGGER_BLOCK = registerBlock(new TriggerBlock(Blocks.OAK_PLANKS.getProperties()), "trigger_block", true);
+    public static Block TRIGGER_BLOCK = registerBlock(new TriggerBlock(Blocks.STRUCTURE_BLOCK.getProperties()), "trigger_block", true);
 
     public static Block registerBlock(Block block, String name, boolean shouldRegisterItem) {
         // Register the block and its item.
