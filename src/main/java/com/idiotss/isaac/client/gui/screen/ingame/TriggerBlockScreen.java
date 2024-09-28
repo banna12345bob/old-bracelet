@@ -3,20 +3,17 @@ package com.idiotss.isaac.client.gui.screen.ingame;
 import com.idiotss.isaac.content.blocks.OldBraceletBlocks;
 import com.idiotss.isaac.content.blocks.TriggerBlock.TriggerBlockEntity;
 import com.idiotss.isaac.network.packet.c2s.play.TriggerBlockUpdateC2SPacket;
+import commonnetwork.api.Dispatcher;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.entity.StructureBlockBlockEntity;
-import net.minecraft.block.enums.StructureBlockMode;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.StructureBlockScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.ButtonWidget;
 import net.minecraft.client.gui.widget.button.CyclingButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
-import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -38,7 +35,6 @@ public class TriggerBlockScreen extends Screen {
     private static final Text DETECT_SIZE = Text.translatable("structure_block.detect_size");
     private static final Text SHOW_AIR = Text.translatable("structure_block.show_air");
     private static final Text SHOW_BOUNDING_BOX = Text.translatable("structure_block.show_boundingbox");
-    private BlockMirror mirror = BlockMirror.NONE;
     private BlockRotation rotation = BlockRotation.NONE;
     private boolean showBoundingBox;
     private TextFieldWidget inputName;
@@ -53,7 +49,6 @@ public class TriggerBlockScreen extends Screen {
     private ButtonWidget buttonRotate180;
     private ButtonWidget buttonRotate270;
 
-    private CyclingButtonWidget<BlockMirror> buttonMirror;
     private CyclingButtonWidget<Boolean> buttonShowBoundingBox;
 
     private final TriggerBlockEntity triggerBlock;
@@ -88,16 +83,14 @@ public class TriggerBlockScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        this.done();
-        return true;
-//        if (super.keyPressed(keyCode, scanCode, modifiers)) {
-//            return true;
-//        } else if (keyCode != 257 && keyCode != 335) {
-//            return false;
-//        } else {
-//            this.done();
-//            return true;
-//        }
+        if (super.keyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        } else if (keyCode != 257 && keyCode != 335) {
+            return false;
+        } else {
+            this.done();
+            return true;
+        }
     }
 
     private void done() {
@@ -106,23 +99,19 @@ public class TriggerBlockScreen extends Screen {
         }
     }
 
-    private boolean updateBlock(TriggerBlockEntity.Action action) {
+    public boolean updateBlock(TriggerBlockEntity.Action action) {
         BlockPos blockPos = new BlockPos(this.parseInt(this.inputPosX.getText()), this.parseInt(this.inputPosY.getText()), this.parseInt(this.inputPosZ.getText()));
         Vec3i vec3i = new Vec3i(this.parseInt(this.inputSizeX.getText()), this.parseInt(this.inputSizeY.getText()), this.parseInt(this.inputSizeZ.getText()));
-        this.client
-                .getNetworkHandler()
-                .send(
-                        new TriggerBlockUpdateC2SPacket(
-                                this.triggerBlock.getPos(),
-                                action,
-                                this.inputName.getText(),
-                                blockPos,
-                                vec3i,
-                                this.triggerBlock.getMirror(),
-                                this.triggerBlock.getRotation(),
-                                this.triggerBlock.shouldShowBoundingBox()
-                        )
-                );
+        Dispatcher.sendToServer(
+                new TriggerBlockUpdateC2SPacket(
+                    this.triggerBlock.getPos(),
+                    action,
+                    this.inputName.getText(),
+                    blockPos,
+                    vec3i,
+                    this.triggerBlock.getRotation(),
+                    this.triggerBlock.shouldShowBoundingBox()
+            ));
         return true;
     }
 
@@ -145,16 +134,8 @@ public class TriggerBlockScreen extends Screen {
                 ButtonWidget.builder(CommonTexts.DONE, button -> this.done()).positionAndSize(this.width / 2 - 4 - 150, 210, 150, 20).build()
         );
         this.addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.CANCEL, button -> this.cancel()).positionAndSize(this.width / 2 + 4, 210, 150, 20).build());
-        this.mirror = this.triggerBlock.getMirror();
         this.rotation = this.triggerBlock.getRotation();
         this.showBoundingBox = this.triggerBlock.shouldShowBoundingBox();
-        this.buttonMirror = this.addDrawableSelectableElement(
-                CyclingButtonWidget.<BlockMirror>builder(BlockMirror::getName)
-                        .values(BlockMirror.values())
-                        .omitKeyText()
-                        .initially(this.mirror)
-                        .build(this.width / 2 - 20, 185, 40, 20, Text.literal("MIRROR"), (button, mirror) -> this.triggerBlock.setMirror(mirror))
-        );
         this.buttonShowBoundingBox = this.addDrawableSelectableElement(
                 CyclingButtonWidget.onOffBuilder(this.triggerBlock.shouldShowBoundingBox())
                         .omitKeyText()

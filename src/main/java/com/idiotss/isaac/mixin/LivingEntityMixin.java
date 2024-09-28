@@ -6,7 +6,6 @@
 package com.idiotss.isaac.mixin;
 
 import com.idiotss.isaac.OldBraceletAttributes;
-import com.idiotss.isaac.OldBracelet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;

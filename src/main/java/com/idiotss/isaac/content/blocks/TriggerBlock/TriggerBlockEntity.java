@@ -3,24 +3,16 @@ package com.idiotss.isaac.content.blocks.TriggerBlock;
 import com.idiotss.isaac.OldBraceletScreenHandler;
 import com.idiotss.isaac.content.blocks.OldBraceletBlockEntities;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.HolderLookup;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.Structure;
-import net.minecraft.structure.StructurePlacementData;
-import net.minecraft.structure.StructureTemplateManager;
-import net.minecraft.structure.processor.BlockRotStructureProcessor;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.util.random.RandomGenerator;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -32,7 +24,6 @@ public class TriggerBlockEntity extends BlockEntity {
     private Identifier triggerName;
     private BlockPos offset = new BlockPos(0, 1, 0);
     private Vec3i size = Vec3i.ZERO;
-    private BlockMirror mirror = BlockMirror.NONE;
     private BlockRotation rotation = BlockRotation.NONE;
     private boolean showBoundingBox = true;
 
@@ -52,7 +43,6 @@ public class TriggerBlockEntity extends BlockEntity {
         nbt.putInt("sizeY", this.size.getY());
         nbt.putInt("sizeZ", this.size.getZ());
         nbt.putString("rotation", this.rotation.toString());
-        nbt.putString("mirror", this.mirror.toString());
         nbt.putBoolean("showboundingbox", this.showBoundingBox);
     }
 
@@ -73,12 +63,6 @@ public class TriggerBlockEntity extends BlockEntity {
             this.rotation = BlockRotation.valueOf(nbt.getString("rotation"));
         } catch (IllegalArgumentException var12) {
             this.rotation = BlockRotation.NONE;
-        }
-
-        try {
-            this.mirror = BlockMirror.valueOf(nbt.getString("mirror"));
-        } catch (IllegalArgumentException var11) {
-            this.mirror = BlockMirror.NONE;
         }
 
         this.showBoundingBox = nbt.getBoolean("showboundingbox");
@@ -137,14 +121,6 @@ public class TriggerBlockEntity extends BlockEntity {
         this.size = size;
     }
 
-    public BlockMirror getMirror() {
-        return this.mirror;
-    }
-
-    public void setMirror(BlockMirror mirror) {
-        this.mirror = mirror;
-    }
-
     public BlockRotation getRotation() {
         return this.rotation;
     }
@@ -153,7 +129,7 @@ public class TriggerBlockEntity extends BlockEntity {
         this.rotation = rotation;
     }
 
-    private static Optional<BlockBox> getStructureBox(BlockPos pos, Stream<BlockPos> corners) {
+    private static Optional<BlockBox> getTriggerBox(BlockPos pos, Stream<BlockPos> corners) {
         Iterator<BlockPos> iterator = corners.iterator();
         if (!iterator.hasNext()) {
             return Optional.empty();
