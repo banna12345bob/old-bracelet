@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "oldbracelet:block/trigger_block"
+    }
+  }
+}

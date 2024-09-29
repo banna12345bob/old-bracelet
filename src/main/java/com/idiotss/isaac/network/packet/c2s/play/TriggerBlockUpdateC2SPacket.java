@@ -4,14 +4,10 @@ import com.idiotss.isaac.OldBracelet;
 import com.idiotss.isaac.content.blocks.TriggerBlock.TriggerBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketEncoder;
 import net.minecraft.network.packet.payload.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -40,7 +36,10 @@ public class TriggerBlockUpdateC2SPacket {
     private static BlockPos offset;
     private static Vec3i size;
     private static BlockRotation rotation;
+    private static String command;
     private static boolean showBoundingBox;
+    private static boolean triggerEnabled;
+    private static boolean disableOnTrigger;
 
     public TriggerBlockUpdateC2SPacket(
             BlockPos pos,
@@ -49,7 +48,10 @@ public class TriggerBlockUpdateC2SPacket {
             BlockPos offset,
             Vec3i size,
             BlockRotation rotation,
-            boolean showBoundingBox
+            boolean showBoundingBox,
+            String command,
+            boolean triggerEnabled,
+            boolean disableOnTrigger
     ) {
         this.pos = pos;
         this.action = action;
@@ -58,19 +60,24 @@ public class TriggerBlockUpdateC2SPacket {
         this.size = size;
         this.rotation = rotation;
         this.showBoundingBox = showBoundingBox;
+        this.command = command;
+        this.triggerEnabled = triggerEnabled;
+        this.disableOnTrigger = disableOnTrigger;
     }
 
     public TriggerBlockUpdateC2SPacket(PacketByteBuf buf) {
         this.pos = buf.readPos();
         this.action = buf.readEnumConstant(TriggerBlockEntity.Action.class);
         this.triggerName = buf.readString();
-        int i = 48;
         this.offset = new BlockPos(MathHelper.clamp(buf.readByte(), -48, 48), MathHelper.clamp(buf.readByte(), -48, 48), MathHelper.clamp(buf.readByte(), -48, 48));
-        int j = 48;
         this.size = new Vec3i(MathHelper.clamp(buf.readByte(), 0, 48), MathHelper.clamp(buf.readByte(), 0, 48), MathHelper.clamp(buf.readByte(), 0, 48));
         this.rotation = buf.readEnumConstant(BlockRotation.class);
         int k = buf.readByte();
-        this.showBoundingBox = (k & 4) != 0;
+        this.showBoundingBox = (k & 1) != 0;
+        this.triggerEnabled = (k & 2) != 0;
+        this.disableOnTrigger = (k & 4) != 0;
+
+        this.command = buf.readString();
     }
 
     private void write(PacketByteBuf buf) {
@@ -85,12 +92,19 @@ public class TriggerBlockUpdateC2SPacket {
         buf.writeByte(this.size.getZ());
         buf.writeEnumConstant(this.rotation);
         int i = 0;
-
         if (this.showBoundingBox) {
+            i |= 1;
+        }
+        if (this.triggerEnabled) {
+            i |= 2;
+        }
+        if (this.disableOnTrigger) {
             i |= 4;
         }
 
         buf.writeByte(i);
+
+        buf.writeString(this.command);
     }
 
     public static CustomPayload.Id<CustomPayload> type()
@@ -108,7 +122,14 @@ public class TriggerBlockUpdateC2SPacket {
                 triggerBlockEntity.setOffset(getOffset());
                 triggerBlockEntity.setSize(getSize());
                 triggerBlockEntity.setRotation(getRotation());
+
+                if (triggerBlockEntity.getCommandExecutor() != null) {
+                    triggerBlockEntity.getCommandExecutor().setCommand(getCommand());
+                }
+
                 triggerBlockEntity.setShowBoundingBox(shouldShowBoundingBox());
+                triggerBlockEntity.setTriggerEnabled(isTriggerEnabled());
+                triggerBlockEntity.setShouldDisableOnTrigger(isDisableOnTrigger());
 
                 triggerBlockEntity.markDirty();
                 ctx.sender().getServerWorld().updateListeners(blockPos, blockState, blockState, Block.NOTIFY_ALL);
@@ -140,7 +161,20 @@ public class TriggerBlockUpdateC2SPacket {
         return rotation;
     }
 
+    public static String getCommand() {
+        return command;
+    }
+
     public static boolean shouldShowBoundingBox() {
         return showBoundingBox;
     }
+
+    public static boolean isTriggerEnabled() {
+        return triggerEnabled;
+    }
+
+    public static boolean isDisableOnTrigger() {
+        return disableOnTrigger;
+    }
+
 }

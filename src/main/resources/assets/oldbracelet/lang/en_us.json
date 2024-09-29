@@ -1,4 +1,11 @@
 {
   "key.oldbracelet.targetkey": "Test key 1",
-  "block.oldbracelet.trigger_block": "Trigger Block"
+  "block.oldbracelet.trigger_block": "Trigger Block",
+  "trigger_block.trigger_name": "Trigger Name",
+  "trigger_block.size": "Trigger Size",
+  "trigger_block.size.x": "Trigger Size X",
+  "trigger_block.size.y": "Trigger Size Y",
+  "trigger_block.size.z": "Trigger Size Z",
+  "trigger_block.enable_trigger": "Trigger Enabled",
+  "trigger_block.disable_on_trigger": "Disable on Trigger"
 }

@@ -5,7 +5,9 @@
   "client": [
     "AbstractClientPlayerEntityMixin",
     "ClientPlayerEntityMixin",
-    "KeybindingAccessor"
+    "ClientWorldMixin",
+    "KeybindingAccessor",
+    "StructureBlockBlockEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

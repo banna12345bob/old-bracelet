@@ -6,7 +6,6 @@ import com.idiotss.isaac.network.packet.c2s.play.TriggerBlockUpdateC2SPacket;
 import commonnetwork.api.Dispatcher;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.enums.StructureBlockMode;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screen.Screen;
@@ -16,23 +15,24 @@ import net.minecraft.client.gui.widget.button.CyclingButtonWidget;
 import net.minecraft.text.CommonTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
-
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Locale;
 
 @Environment(EnvType.CLIENT)
 public class TriggerBlockScreen extends Screen {
     // Translations
-    private static final Text STRUCTURE_NAME = Text.translatable("structure_block.structure_name");
+    private static final Text STRUCTURE_NAME = Text.translatable("trigger_block.trigger_name");
     private static final Text POSITION = Text.translatable("structure_block.position");
-    private static final Text SIZE = Text.translatable("structure_block.size");
+    private static final Text SIZE = Text.translatable("trigger_block.size");
     private static final Text SHOW_BOUNDING_BOX = Text.translatable("structure_block.show_boundingbox");
+    private static final Text ENABLE_TRIGGER = Text.translatable("trigger_block.enable_trigger");
+    private static final Text DISABLE_ON_TRIGGER = Text.translatable("trigger_block.disable_on_trigger");
+    private static final Text SET_COMMAND = Text.translatable("advMode.setCommand");
+
     private BlockRotation rotation = BlockRotation.NONE;
     private boolean showBoundingBox;
+    private boolean enableTrigger;
+    private boolean shouldDisableOnTrigger;
     private TextFieldWidget inputName;
     private TextFieldWidget inputPosX;
     private TextFieldWidget inputPosY;
@@ -44,8 +44,11 @@ public class TriggerBlockScreen extends Screen {
     private ButtonWidget buttonRotate90;
     private ButtonWidget buttonRotate180;
     private ButtonWidget buttonRotate270;
+    protected TextFieldWidget consoleCommandTextField;
 
     private CyclingButtonWidget<Boolean> buttonShowBoundingBox;
+    private CyclingButtonWidget<Boolean> buttonEnableTrigger;
+    private CyclingButtonWidget<Boolean> buttonDisableOnTrigger;
 
     private final TriggerBlockEntity triggerBlock;
 
@@ -71,12 +74,19 @@ public class TriggerBlockScreen extends Screen {
         this.inputSizeY.render(graphics, mouseX, mouseY, delta);
         this.inputSizeZ.render(graphics, mouseX, mouseY, delta);
 
-        graphics.drawShadowedText(this.textRenderer, SHOW_BOUNDING_BOX, this.width / 2 + 154 - this.textRenderer.getWidth(SHOW_BOUNDING_BOX), 70, 10526880);
+        graphics.drawShadowedText(this.textRenderer, ENABLE_TRIGGER, this.width / 2 + 154 - this.textRenderer.getWidth(ENABLE_TRIGGER), 70, 10526880);
+        graphics.drawShadowedText(this.textRenderer, DISABLE_ON_TRIGGER, this.width / 2 + 154 - this.textRenderer.getWidth(DISABLE_ON_TRIGGER), 110, 10526880);
+        graphics.drawShadowedText(this.textRenderer, SHOW_BOUNDING_BOX, this.width / 2 + 154 - this.textRenderer.getWidth(SHOW_BOUNDING_BOX), 150, 10526880);
+
+        graphics.drawShadowedText(this.textRenderer, SET_COMMAND, this.width / 2 - 153, 150, 10526880);
+        this.consoleCommandTextField.render(graphics, mouseX, mouseY, delta);
     }
 
     private void cancel() {
         this.triggerBlock.setRotation(this.rotation);
         this.triggerBlock.setShowBoundingBox(this.showBoundingBox);
+        this.triggerBlock.setTriggerEnabled(this.enableTrigger);
+        this.triggerBlock.setShouldDisableOnTrigger(this.shouldDisableOnTrigger);
         this.client.setScreen(null);
     }
 
@@ -109,7 +119,10 @@ public class TriggerBlockScreen extends Screen {
                     blockPos,
                     vec3i,
                     this.triggerBlock.getRotation(),
-                    this.triggerBlock.shouldShowBoundingBox()
+                    this.triggerBlock.shouldShowBoundingBox(),
+                    this.consoleCommandTextField.getText(),
+                    this.triggerBlock.isTriggerEnabled(),
+                    this.triggerBlock.shouldDisableOnTrigger()
             ));
         return true;
     }
@@ -135,11 +148,25 @@ public class TriggerBlockScreen extends Screen {
         this.addDrawableSelectableElement(ButtonWidget.builder(CommonTexts.CANCEL, button -> this.cancel()).positionAndSize(this.width / 2 + 4, 210, 150, 20).build());
         this.rotation = this.triggerBlock.getRotation();
         this.showBoundingBox = this.triggerBlock.shouldShowBoundingBox();
+        this.enableTrigger = this.triggerBlock.isTriggerEnabled();
+        this.shouldDisableOnTrigger = this.triggerBlock.shouldDisableOnTrigger();
+
+        this.buttonEnableTrigger = this.addDrawableSelectableElement(
+                CyclingButtonWidget.onOffBuilder(this.triggerBlock.isTriggerEnabled())
+                        .omitKeyText()
+                        .build(this.width / 2 + 4 + 100, 80, 50, 20, ENABLE_TRIGGER, (button, enableTrigger) -> this.triggerBlock.setTriggerEnabled(enableTrigger))
+        );
+        this.buttonDisableOnTrigger = this.addDrawableSelectableElement(
+                CyclingButtonWidget.onOffBuilder(this.triggerBlock.shouldDisableOnTrigger())
+                        .omitKeyText()
+                        .build(this.width / 2 + 4 + 100, 120, 50, 20, DISABLE_ON_TRIGGER, (button, disableOnTrigger) -> this.triggerBlock.setShouldDisableOnTrigger(disableOnTrigger))
+        );
         this.buttonShowBoundingBox = this.addDrawableSelectableElement(
                 CyclingButtonWidget.onOffBuilder(this.triggerBlock.shouldShowBoundingBox())
                         .omitKeyText()
-                        .build(this.width / 2 + 4 + 100, 80, 50, 20, SHOW_BOUNDING_BOX, (button, showBoundingBox) -> this.triggerBlock.setShowBoundingBox(showBoundingBox))
+                        .build(this.width / 2 + 4 + 100, 160, 50, 20, SHOW_BOUNDING_BOX, (button, showBoundingBox) -> this.triggerBlock.setShowBoundingBox(showBoundingBox))
         );
+
         this.buttonRotate0 = this.addDrawableSelectableElement(ButtonWidget.builder(Text.literal("0"), button -> {
             this.triggerBlock.setRotation(BlockRotation.NONE);
             this.updateRotationButton();
@@ -156,7 +183,7 @@ public class TriggerBlockScreen extends Screen {
             this.triggerBlock.setRotation(BlockRotation.COUNTERCLOCKWISE_90);
             this.updateRotationButton();
         }).positionAndSize(this.width / 2 + 1 + 40 + 1 + 20, 185, 40, 20).build());
-        this.inputName = new TextFieldWidget(this.textRenderer, this.width / 2 - 152, 40, 300, 20, Text.translatable("structure_block.structure_name")) {
+        this.inputName = new TextFieldWidget(this.textRenderer, this.width / 2 - 152, 40, 300, 20, Text.translatable("trigger_block.trigger_name")) {
             @Override
             public boolean charTyped(char c, int modifiers) {
                 return !TriggerBlockScreen.this.isValidCharacterForName(this.getText(), c, this.getCursor()) ? false : super.charTyped(c, modifiers);
@@ -179,18 +206,24 @@ public class TriggerBlockScreen extends Screen {
         this.inputPosZ.setText(Integer.toString(blockPos.getZ()));
         this.addSelectableElement(this.inputPosZ);
         Vec3i vec3i = this.triggerBlock.getSize();
-        this.inputSizeX = new TextFieldWidget(this.textRenderer, this.width / 2 - 152, 120, 80, 20, Text.translatable("structure_block.size.x"));
+        this.inputSizeX = new TextFieldWidget(this.textRenderer, this.width / 2 - 152, 120, 80, 20, Text.translatable("trigger_block.size.x"));
         this.inputSizeX.setMaxLength(15);
         this.inputSizeX.setText(Integer.toString(vec3i.getX()));
         this.addSelectableElement(this.inputSizeX);
-        this.inputSizeY = new TextFieldWidget(this.textRenderer, this.width / 2 - 72, 120, 80, 20, Text.translatable("structure_block.size.y"));
+        this.inputSizeY = new TextFieldWidget(this.textRenderer, this.width / 2 - 72, 120, 80, 20, Text.translatable("trigger_block.size.y"));
         this.inputSizeY.setMaxLength(15);
         this.inputSizeY.setText(Integer.toString(vec3i.getY()));
         this.addSelectableElement(this.inputSizeY);
-        this.inputSizeZ = new TextFieldWidget(this.textRenderer, this.width / 2 + 8, 120, 80, 20, Text.translatable("structure_block.size.z"));
+        this.inputSizeZ = new TextFieldWidget(this.textRenderer, this.width / 2 + 8, 120, 80, 20, Text.translatable("trigger_block.size.z"));
         this.inputSizeZ.setMaxLength(15);
         this.inputSizeZ.setText(Integer.toString(vec3i.getZ()));
         this.addSelectableElement(this.inputSizeZ);
+
+        this.consoleCommandTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 152, 160, 240, 20, Text.translatable("advMode.command"));
+        this.consoleCommandTextField.setMaxLength(32500);
+        this.consoleCommandTextField.setText(this.triggerBlock.getCommandExecutor().getCommand());
+        this.addSelectableElement(this.consoleCommandTextField);
+
         this.updateRotationButton();
         this.updateWidgets();
     }
@@ -215,6 +248,7 @@ public class TriggerBlockScreen extends Screen {
         String string5 = this.inputSizeX.getText();
         String string6 = this.inputSizeY.getText();
         String string7 = this.inputSizeZ.getText();
+        String string8 = this.consoleCommandTextField.getText();
         this.init(client, width, height);
         this.inputName.setText(string);
         this.inputPosX.setText(string2);
@@ -223,6 +257,7 @@ public class TriggerBlockScreen extends Screen {
         this.inputSizeX.setText(string5);
         this.inputSizeY.setText(string6);
         this.inputSizeZ.setText(string7);
+        this.consoleCommandTextField.setText(string8);
     }
 
     private void updateRotationButton() {
@@ -258,6 +293,8 @@ public class TriggerBlockScreen extends Screen {
         this.buttonRotate180.visible = true;
         this.buttonRotate270.visible = true;
         this.buttonShowBoundingBox.visible = true;
+        this.buttonEnableTrigger.visible = true;
+        this.buttonDisableOnTrigger.visible = true;
     }
 
 }

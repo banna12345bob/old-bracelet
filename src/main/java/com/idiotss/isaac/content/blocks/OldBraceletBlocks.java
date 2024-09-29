@@ -4,6 +4,7 @@ import com.idiotss.isaac.OldBracelet;
 import com.idiotss.isaac.content.blocks.TriggerBlock.TriggerBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.MapColor;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
@@ -12,7 +13,7 @@ import net.minecraft.util.Identifier;
 
 public class OldBraceletBlocks {
 
-    public static Block TRIGGER_BLOCK = registerBlock(new TriggerBlock(Blocks.STRUCTURE_BLOCK.getProperties()), "trigger_block", true);
+    public static Block TRIGGER_BLOCK = registerBlock(new TriggerBlock(Blocks.BARRIER.getProperties().mapColor(MapColor.NONE)), "trigger_block", true);
 
     public static Block registerBlock(Block block, String name, boolean shouldRegisterItem) {
         // Register the block and its item.
@@ -30,6 +31,5 @@ public class OldBraceletBlocks {
 
     public static void register() {
         OldBracelet.LOGGER.info("Registering blocks for " + OldBracelet.MOD_ID);
-        Registry.register(Registries.BLOCK_TYPE, Identifier.of(OldBracelet.MOD_ID, "trigger_block"), TriggerBlock.CODEC);
     }
 }

@@ -1,22 +1,30 @@
 package com.idiotss.isaac.content.blocks.TriggerBlock;
 
-import com.idiotss.isaac.OldBracelet;
+import com.idiotss.isaac.content.blocks.OldBraceletBlocks;
+import com.idiotss.isaac.util.TickableBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.ChatUtil;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.random.RandomGenerator;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.*;
 import net.minecraft.world.event.GameEvent;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 
 // Based on Structure Block
@@ -62,7 +70,17 @@ public class TriggerBlock extends BlockWithEntity implements OperatorBlock {
 
     @Override
     protected BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
+        return BlockRenderType.INVISIBLE;
+    }
+
+    @Override
+    protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+        return context.isHolding(OldBraceletBlocks.TRIGGER_BLOCK.asItem()) ? VoxelShapes.fullCube() : VoxelShapes.empty();
+    }
+
+    @Override
+    protected boolean isTransparent(BlockState state, BlockView world, BlockPos pos) {
+        return true;
     }
 
     private int getRedstoneOutput(BlockState state) {
@@ -79,28 +97,61 @@ public class TriggerBlock extends BlockWithEntity implements OperatorBlock {
         return direction == Direction.UP ? this.getRedstoneOutput(state) : 0;
     }
 
-    // Ticker ain't Ticking
     @Override
     protected void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, RandomGenerator random) {
-        OldBracelet.LOGGER.info("TICKER");
         if (world.getBlockEntity(pos) instanceof TriggerBlockEntity triggerBlockEntity) {
             for (PlayerEntity player: world.getPlayers()) {
                 if (triggerBlockEntity.isPlayerInside(player)) {
-                    setRedstoneOutput(state, 15);
-                    world.setBlockState(pos, state, Block.NOTIFY_ALL);
-                    neighborUpdate(state, world, pos, this, pos, true);
-                    world.emitGameEvent(player, state.get(POWERED) ? GameEvent.BLOCK_ACTIVATE : GameEvent.BLOCK_DEACTIVATE, pos);
+
+                    if (triggerBlockEntity.shouldRunCommands()) {
+                        CommandBlockExecutor commandBlockExecutor = triggerBlockEntity.getCommandExecutor();
+                        if (!Objects.equals(commandBlockExecutor.getCommand(), "")) {
+                            boolean bl = !ChatUtil.isEmpty(commandBlockExecutor.getCommand());
+                            this.execute(state, world, pos, commandBlockExecutor, bl);
+                        }
+                    }
+                    state = setRedstoneOutput(state, true);
                 } else {
-                    setRedstoneOutput(state, 0);
-                    world.setBlockState(pos, state, Block.NOTIFY_ALL);
-                    neighborUpdate(state, world, pos, this, pos, true);
-                    world.emitGameEvent(player, state.get(POWERED) ? GameEvent.BLOCK_ACTIVATE : GameEvent.BLOCK_DEACTIVATE, pos);
+                    state = setRedstoneOutput(state, false);
                 }
+                world.setBlockState(pos, state, Block.NOTIFY_ALL);
+                neighborUpdate(state, world, pos, this, pos, true);
+                world.emitGameEvent(player, state.get(POWERED) ? GameEvent.BLOCK_ACTIVATE : GameEvent.BLOCK_DEACTIVATE, pos);
             }
         }
     }
 
-    protected BlockState setRedstoneOutput(BlockState state, int rsOut) {
-        return state.with(POWERED, Boolean.valueOf(rsOut > 0));
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        return TickableBlockEntity.getTicker(world);
+    }
+
+    private void execute(BlockState state, World world, BlockPos pos, CommandBlockExecutor executor, boolean hasCommand) {
+        if (hasCommand) {
+            executor.execute(world);
+        } else {
+            executor.setSuccessCount(0);
+        }
+
+        executeCommandChain(world, pos);
+    }
+
+    private static void executeCommandChain(World world, BlockPos pos) {
+        BlockPos.Mutable mutable = pos.mutableCopy();
+
+        BlockState blockState = world.getBlockState(mutable);
+        Block block = blockState.getBlock();
+        if (world.getBlockEntity(mutable) instanceof TriggerBlockEntity triggerBlockEntity) {
+            CommandBlockExecutor commandBlockExecutor = triggerBlockEntity.getCommandExecutor();
+            commandBlockExecutor.execute(world);
+
+            world.updateComparators(mutable, block);
+        }
+
+    }
+
+    protected BlockState setRedstoneOutput(BlockState state, boolean value) {
+        return state.with(POWERED, value);
     }
 }

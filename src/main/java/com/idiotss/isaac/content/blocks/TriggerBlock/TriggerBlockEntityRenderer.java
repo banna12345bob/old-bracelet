@@ -1,9 +1,12 @@
 package com.idiotss.isaac.content.blocks.TriggerBlock;
 
 import com.idiotss.isaac.OldBracelet;
+import com.idiotss.isaac.content.blocks.OldBraceletBlocks;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.StructureBlockBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
@@ -13,7 +16,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.BlockView;
 
 @Environment(EnvType.CLIENT)
 public class TriggerBlockEntityRenderer implements BlockEntityRenderer<TriggerBlockEntity> {
@@ -23,57 +26,46 @@ public class TriggerBlockEntityRenderer implements BlockEntityRenderer<TriggerBl
     @Override
     public void render(TriggerBlockEntity triggerBlockEntity, float f, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int i, int j) {
         if (MinecraftClient.getInstance().player.isCreativeLevelTwoOp() || MinecraftClient.getInstance().player.isSpectator()) {
-            BlockPos blockPos = triggerBlockEntity.getOffset();
-            Vec3i vec3i = triggerBlockEntity.getSize();
-            if (vec3i.getX() >= 1 && vec3i.getY() >= 1 && vec3i.getZ() >= 1) {
-                double d = blockPos.getX();
-                double e = blockPos.getZ();
-                double g = blockPos.getY();
-                double h = g + (double)vec3i.getY();
-                double k = vec3i.getX();
-                double l = vec3i.getZ();
+            if (triggerBlockEntity.shouldShowBoundingBox() && MinecraftClient.getInstance().player.isHolding(OldBraceletBlocks.TRIGGER_BLOCK.asItem())) {
+                double m = triggerBlockEntity.getTriggerBox().minX;
+                double g = triggerBlockEntity.getTriggerBox().minY;
+                double n = triggerBlockEntity.getTriggerBox().minZ;
 
-                double m;
-                double n;
-                double o;
-                double p;
-                switch (triggerBlockEntity.getRotation()) {
-                    case CLOCKWISE_90:
-                        m = l < 0.0 ? d : d + 1.0;
-                        n = k < 0.0 ? e + 1.0 : e;
-                        o = m - l;
-                        p = n + k;
-                        break;
-                    case CLOCKWISE_180:
-                        m = k < 0.0 ? d : d + 1.0;
-                        n = l < 0.0 ? e : e + 1.0;
-                        o = m - k;
-                        p = n - l;
-                        break;
-                    case COUNTERCLOCKWISE_90:
-                        m = l < 0.0 ? d + 1.0 : d;
-                        n = k < 0.0 ? e : e + 1.0;
-                        o = m + l;
-                        p = n - k;
-                        break;
-                    default:
-                        m = k < 0.0 ? d + 1.0 : d;
-                        n = l < 0.0 ? e + 1.0 : e;
-                        o = m + k;
-                        p = n + l;
-                }
+                double o = triggerBlockEntity.getTriggerBox().maxX;
+                double h = triggerBlockEntity.getTriggerBox().maxY;
+                double p = triggerBlockEntity.getTriggerBox().maxZ;
 
-                float q = 1.0F;
-                float r = 0.9F;
-                float s = 0.5F;
-                if (triggerBlockEntity.shouldShowBoundingBox()) {
-                    VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayer.getLines());
-                    if (triggerBlockEntity.isPlayerInside(MinecraftClient.getInstance().player)){
-                        WorldRenderer.drawBox(matrices, vertexConsumer, m, g, n, o, h, p, 0F, 0.9F, 0F, 1.0F, 0.0f, 0.0f, 0.0f);
-                    } else {
-                        WorldRenderer.drawBox(matrices, vertexConsumer, m, g, n, o, h, p, 0.9F, 0.9F, 0.9F, 1.0F, 0.5F, 0.5F, 0.5F);
-                    }
+                VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayer.getLines());
+                if (triggerBlockEntity.isPlayerInside(MinecraftClient.getInstance().player)) {
+                    WorldRenderer.drawBox(matrices, vertexConsumer, m, g, n, o, h, p, 0F, 0.9F, 0F, 1.0F, 0.0f, 0.0f, 0.0f);
+                } else if (!triggerBlockEntity.isTriggerEnabled()) {
+                    WorldRenderer.drawBox(matrices, vertexConsumer, m, g, n, o, h, p, 0.9F, 0.0F, 0F, 1.0F, 0.9f, 0.0f, 0.0f);
+                } else  {
+                    WorldRenderer.drawBox(matrices, vertexConsumer, m, g, n, o, h, p, 0.9F, 0.9F, 0.9F, 1.0F, 0.5F, 0.5F, 0.5F);
                 }
+//                this.renderInvisibleBlocks(triggerBlockEntity, vertexConsumers, matrices);
+            }
+        }
+    }
+
+    private void renderInvisibleBlocks(TriggerBlockEntity entity, VertexConsumerProvider vertexConsumers, MatrixStack matrices) {
+        BlockView blockView = entity.getWorld();
+        VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayer.getLines());
+        BlockPos blockPos = entity.getPos();
+        BlockPos blockPos2 = blockPos.add(entity.getOffset());
+
+        for (BlockPos blockPos3 : BlockPos.iterate(blockPos2, blockPos2.add(entity.getSize()).add(-1, -1, -1))) {
+            BlockState blockState = blockView.getBlockState(blockPos3);
+            boolean bl = blockState.isAir();
+            if (bl) {
+                float f = bl ? 0.05F : 0.0F;
+                double d = (double)((float)(blockPos3.getX() - blockPos.getX()) + 0.45F - f);
+                double e = (double)((float)(blockPos3.getY() - blockPos.getY()) + 0.45F - f);
+                double g = (double)((float)(blockPos3.getZ() - blockPos.getZ()) + 0.45F - f);
+                double h = (double)((float)(blockPos3.getX() - blockPos.getX()) + 0.55F + f);
+                double i = (double)((float)(blockPos3.getY() - blockPos.getY()) + 0.55F + f);
+                double j = (double)((float)(blockPos3.getZ() - blockPos.getZ()) + 0.55F + f);
+                WorldRenderer.drawBox(matrices, vertexConsumer, d, e, g, h, i, j, 0.5F, 0.5F, 1.0F, 1.0F, 0.5F, 0.5F, 1.0F);
             }
         }
     }
