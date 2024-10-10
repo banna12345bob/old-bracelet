@@ -24,6 +24,9 @@ public class OldBraceletBlockEntities {
 
     public static void register() {
         OldBracelet.LOGGER.info("Registering blocks entities for " + OldBracelet.MOD_ID);
+    }
+
+    static {
         BlockEntityRendererFactories.register(TRIGGER_BLOCK_ENTITY, TriggerBlockEntityRenderer::new);
     }
 }

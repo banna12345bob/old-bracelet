@@ -43,8 +43,6 @@ fabricApi {
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	// Yarn mappings
-//	mappings "net.fabricmc:yarn:${project.yarn_version}:v2"
 
 	// Quilt Mappings
 	mappings "org.quiltmc:quilt-mappings:${project.minecraft_version}+build.${project.qm_version}:intermediary-v2"
@@ -63,10 +61,10 @@ dependencies {
 	}
 
 	// https://github.com/mysticdrew/common-networking
-	modImplementation 'mysticdrew:common-networking-fabric:1.0.16-1.21'
+	modImplementation "mysticdrew:common-networking-fabric:${common_networking_version}-${minecraft_version}"
 
 	// https://modrinth.com/mod/geckolib
-	modImplementation "software.bernie.geckolib:geckolib-fabric-${project.minecraft_version}:${project.geckolib_version}"
+	modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${project.geckolib_version}"
 
 	// https://modrinth.com/mod/playeranimator - Should be included default
 	modImplementation include ("dev.kosmx.player-anim:player-animation-lib-fabric:${project.player_anim_version}")

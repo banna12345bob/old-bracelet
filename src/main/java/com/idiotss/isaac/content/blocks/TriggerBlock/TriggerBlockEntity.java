@@ -216,7 +216,8 @@ public class TriggerBlockEntity extends BlockEntity implements TickableBlockEnti
 
     @Override
     public void tick() {
-        world.scheduleBlockTick(pos, world.getBlockState(pos).getBlock(), 1);
+        if (this.enabled)
+            world.scheduleBlockTick(pos, world.getBlockState(pos).getBlock(), 1);
     }
 
     public Box getTriggerBox() {
