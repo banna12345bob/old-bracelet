@@ -1,13 +1,10 @@
 package com.idiotss.isaac.content.blocks.TriggerBlock;
 
-import com.idiotss.isaac.OldBracelet;
 import com.idiotss.isaac.content.blocks.OldBraceletBlocks;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.StructureBlockBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;

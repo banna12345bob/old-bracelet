@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.7-SNAPSHOT'
+	id 'fabric-loom' version '1.8.10'
 	id 'maven-publish'
 }
 
@@ -61,10 +61,10 @@ dependencies {
 	}
 
 	// https://github.com/mysticdrew/common-networking
-	modImplementation "mysticdrew:common-networking-fabric:${common_networking_version}-${minecraft_version}"
+	modImplementation "mysticdrew:common-networking-fabric:${common_networking_version}"
 
 	// https://modrinth.com/mod/geckolib
-	modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${project.geckolib_version}"
+	modImplementation "software.bernie.geckolib:geckolib-fabric-${project.geckolib_version}"
 
 	// https://modrinth.com/mod/playeranimator - Should be included default
 	modImplementation include ("dev.kosmx.player-anim:player-animation-lib-fabric:${project.player_anim_version}")

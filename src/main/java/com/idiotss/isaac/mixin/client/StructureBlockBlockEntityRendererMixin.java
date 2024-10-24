@@ -1,6 +1,5 @@
 package com.idiotss.isaac.mixin.client;
 
-import com.idiotss.isaac.OldBracelet;
 import com.idiotss.isaac.content.blocks.OldBraceletBlocks;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.block.BlockState;
