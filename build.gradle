@@ -129,7 +129,7 @@ if(isRelease){
 publishing {
 	repositories {
 		maven {
-			name = archives_base_name
+			name = archives_base_name.concat(mod_version)
 			url = "https://maven.idiotss.com/".concat(mavenRepo)
 			credentials{
 				username = System.getenv("MAVEN_NAME")
@@ -146,7 +146,7 @@ publishing {
 			} else {
 				version = (version as String).concat("+fabric-".concat(minecraft_version as String)).concat("-build.").concat(buildNumber)
 			}
-			artifactId = archives_base_name
+			artifactId = archives_base_name.concat(mod_version)
 			from components.java
 		}
 	}
