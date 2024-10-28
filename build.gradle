@@ -132,8 +132,8 @@ publishing {
 		create("mavenJava", MavenPublication){
 			groupId = maven_group
 			// This sucks
-			artifactId = (archives_base_name as String).concat("-fabric-".concat(minecraft_version as String)).concat("-build.").concat(buildNumber)
-			version = version
+			artifactId = archives_base_name
+			version = (archives_base_name as String).concat("+fabric-".concat(minecraft_version as String)).concat("-build.").concat(buildNumber)
 			from components.java
 		}
 	}
