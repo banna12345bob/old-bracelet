@@ -142,9 +142,9 @@ publishing {
 			groupId = maven_group
 			// This sucks
 			if (isRelease) {
-				version = (version as String).concat("+fabric-".concat(minecraft_version as String))
+				version = (archives_base_name as String).concat("+fabric-".concat(minecraft_version as String))
 			} else {
-				version = (version as String).concat("+fabric-".concat(minecraft_version as String)).concat("-build.").concat(buildNumber)
+				version = (archives_base_name as String).concat("+fabric-".concat(minecraft_version as String)).concat("-build.").concat(buildNumber)
 			}
 			artifactId = mod_version
 			from components.java
