@@ -1,10 +1,7 @@
 name: Publish project to Maven repository
 # Publish manually
-on: workflow_dispatch
+on: [workflow_dispatch, push]
 # OR, publish per each commit
-on:
-  push:
-    branches: [ main ]
 jobs:
   publish:
     runs-on: ubuntu-latest
