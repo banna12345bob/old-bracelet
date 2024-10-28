@@ -7,6 +7,7 @@ version = project.mod_version
 group = project.maven_group
 
 var buildNumber = System.getenv("GITHUB_RUN_NUMBER").toString()
+var isRelease = System.getenv("RELEASE_BUILD")?.toBoolean() ?: false
 
 base {
 	archivesName = project.archives_base_name
@@ -116,12 +117,20 @@ jar {
 	}
 }
 
+var mavenRepo = ""
+if(isRelease){
+	mavenRepo = "releases"
+} else {
+	mavenRepo = "snapshots"
+}
+
+
 // configure the maven publication
 publishing {
 	repositories {
 		maven {
 			name = archives_base_name
-			url = "https://maven.idiotss.com/snapshots"
+			url = "https://maven.idiotss.com/".concat(mavenRepo)
 			credentials{
 				username = System.getenv("MAVEN_NAME")
 				password = System.getenv("MAVEN_SECRET")
@@ -132,24 +141,13 @@ publishing {
 		create("mavenJava", MavenPublication){
 			groupId = maven_group
 			// This sucks
+			if (isRelease) {
+				version = (version as String).concat("+fabric-".concat(minecraft_version as String))
+			} else {
+				version = (version as String).concat("+fabric-".concat(minecraft_version as String)).concat("-build.").concat(buildNumber)
+			}
 			artifactId = archives_base_name
-			version = (archives_base_name as String).concat("+fabric-".concat(minecraft_version as String)).concat("-build.").concat(buildNumber)
 			from components.java
 		}
 	}
-
-//	publications {
-//		create("mavenJava", MavenPublication) {
-//			artifactId = project.archives_base_name
-//			from components.java
-//		}
-//	}
-//
-//	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-//	repositories {
-//		// Add repositories to publish to here.
-//		// Notice: This block does NOT have the same function as the block in the top level.
-//		// The repositories here will be used for publishing your artifact, not for
-//		// retrieving dependencies.
-//	}
 }
