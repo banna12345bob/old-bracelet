@@ -14,7 +14,7 @@ jobs:
         java: [
           21    # Current Java LTS
         ]
-    runs-on: self-hosted, Linux
+    runs-on: ["Linux", "self-hosted"]
     steps:
       - name: checkout repository
         uses: actions/checkout@v4
