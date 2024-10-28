@@ -6,6 +6,8 @@ plugins {
 version = project.mod_version
 group = project.maven_group
 
+var buildNumber = System.getenv("GITHUB_RUN_NUMBER").toString()
+
 base {
 	archivesName = project.archives_base_name
 }
@@ -129,8 +131,9 @@ publishing {
 	publications {
 		create("mavenJava", MavenPublication){
 			groupId = maven_group
-			artifactId = archives_base_name-"fabric"-minecraft_version
-			version = mod_version
+			// This sucks
+			artifactId = (archives_base_name as String).concat("-fabric-".concat(minecraft_version as String)).concat("-build.").concat(buildNumber)
+			version = version
 			from components.java
 		}
 	}
