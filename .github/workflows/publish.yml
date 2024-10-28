@@ -4,7 +4,7 @@ on: [workflow_dispatch, push]
 # OR, publish per each commit
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ["Linux", "self-hosted"]
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
