@@ -3,6 +3,7 @@ package com.idiotss.isaac.events;
 import com.idiotss.isaac.OldBracelet;
 import com.idiotss.isaac.animation.AnimatablePlayer;
 import com.idiotss.isaac.camera.OldBraceletCamera;
+import com.idiotss.isaac.network.packet.c2s.play.PublishPlayerAnimationC2SPacket;
 import com.mojang.blaze3d.platform.InputUtil;
 import io.socol.betterthirdperson.BetterThirdPerson;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -13,6 +14,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.glfw.GLFW;
+
+import commonnetwork.api.Dispatcher;
 
 public class KeyInputHandler {
     private static KeyBind targetKeybind;
@@ -61,8 +64,12 @@ public class KeyInputHandler {
                             newVelocity = new Vec3d(client.player.getRotationVector().x * rollMultiplier, client.player.getVelocity().y, client.player.getRotationVector().z * rollMultiplier);
                             ((AnimatablePlayer) client.player).playAnimation("oldbracelet:player/run.animation", client.player.getVelocity(), 1.0F);
 
-//                        TODO: Send Roll packet to server
-//                        client.world.sendPacket();
+                            Dispatcher.sendToServer(
+                                    new PublishPlayerAnimationC2SPacket(
+                                        "oldbracelet:player/run.animation",
+                                        client.player.getVelocity(),
+                                        1.0f
+                                ));
 
                             lastTime = client.world.getTime();
                             client.player.setVelocity(newVelocity);
