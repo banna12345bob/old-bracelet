@@ -4,7 +4,7 @@
 # against bad commits.
 
 name: Build Snapshot
-on: push
+on: [push, workflow_dispatch]
 
 jobs:
   build:
